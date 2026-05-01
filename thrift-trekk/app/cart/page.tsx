@@ -1,171 +1,201 @@
-'use client';
+'use client'
 
-import { Header } from '@/components/header';
-import { Footer } from '@/components/footer';
-import { useCart } from '@/lib/cart-context';
-import Link from 'next/link';
-import Image from 'next/image';
-import { Trash2, Plus, Minus } from 'lucide-react';
-import { WHATSAPP_URL } from '@/lib/constants';
+import { Header } from '@/components/header'
+import { Footer } from '@/components/footer'
+import { useCart } from '@/lib/cart-context'
+import Link from 'next/link'
+import Image from 'next/image'
+import { Trash2, Plus, Minus, ArrowLeft, ShoppingBag } from 'lucide-react'
+import { WHATSAPP_URL } from '@/lib/constants'
+import { Reveal, RevealText } from '@/components/effects/reveal'
 
 export default function CartPage() {
-  const { items, removeItem, updateQuantity, total, clearCart } = useCart();
+  const { items, removeItem, updateQuantity, total, clearCart } = useCart()
 
   if (items.length === 0) {
     return (
-      <div className="min-h-screen bg-white flex flex-col">
+      <div className="min-h-screen bg-background text-foreground flex flex-col">
         <Header />
-        <div className="max-w-7xl w-full mx-auto px-4 md:px-6 py-16 md:py-24 flex-1">
-          <h1 className="text-3xl md:text-4xl font-bold mb-12">Shopping Cart</h1>
-          <div className="text-center py-16 md:py-20">
-            <p className="text-gray-600 text-lg mb-8">Your cart is empty</p>
-            <Link href="/shop" className="inline-block bg-black text-white px-8 py-4 rounded-lg font-bold hover:bg-gray-900 transition-all duration-200 active:scale-95">
-              Continue Shopping
-            </Link>
+        <div className="max-w-[1600px] w-full mx-auto px-4 md:px-8 py-20 md:py-28 flex-1">
+          <Reveal>
+            <p className="font-mono text-xs tracking-[0.2em] uppercase text-muted-foreground mb-4 flex items-center gap-2">
+              <span className="inline-block w-6 h-px bg-primary" />
+              Your bag
+            </p>
+          </Reveal>
+          <h1 className="text-huge font-display mb-12">
+            <RevealText text="The bag" /> <RevealText text="is empty." className="text-primary italic" delay={0.1} />
+          </h1>
+          <div className="flex items-center gap-3">
+            <ShoppingBag size={32} className="text-muted-foreground" />
+            <p className="text-lg text-muted-foreground">Time to fix that.</p>
           </div>
+          <Link
+            href="/shop"
+            className="mt-10 inline-flex items-center gap-3 bg-primary text-primary-foreground font-mono text-xs tracking-[0.2em] uppercase font-bold px-8 py-5 hover:bg-foreground hover:text-background transition-colors"
+          >
+            Browse the catalog
+          </Link>
         </div>
         <Footer />
       </div>
-    );
+    )
   }
 
-  const whatsappMessage = `Hi, I'd like to order the following items:\n${items
-    .map(item => `• ${item.name} (Size ${item.size}) x${item.quantity}`)
-    .join('\n')}\n\nTotal: ₹${total}\n\nPlease confirm availability and proceed with payment.`;
+  const whatsappMessage = `Hi, I'd like to order:\n${items
+    .map((item) => `• ${item.name} (Size ${item.size}) x${item.quantity}`)
+    .join('\n')}\n\nTotal: ₹${total}\n\nPlease confirm availability.`
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
+    <div className="min-h-screen bg-background text-foreground flex flex-col">
       <Header />
-      <div className="max-w-7xl w-full mx-auto px-4 md:px-6 py-8 md:py-12 flex-1">
-        <h1 className="text-3xl md:text-4xl font-bold mb-10">Shopping Cart</h1>
+      <div className="max-w-[1600px] w-full mx-auto px-4 md:px-8 py-12 md:py-16 flex-1">
+        <Reveal>
+          <p className="font-mono text-xs tracking-[0.2em] uppercase text-muted-foreground mb-4 flex items-center gap-2">
+            <span className="inline-block w-6 h-px bg-primary" />
+            Your bag — {items.length} {items.length === 1 ? 'piece' : 'pieces'}
+          </p>
+        </Reveal>
+        <h1 className="text-huge font-display mb-12 md:mb-16">
+          <RevealText text="The" /> <RevealText text="bag." className="text-primary italic" delay={0.1} />
+        </h1>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 md:gap-10">
-          {/* Cart Items */}
-          <div className="lg:col-span-2">
-            <div className="space-y-4 md:space-y-5">
-              {items.map(item => (
-                <div 
-                  key={`${item.productId}-${item.size}`} 
-                  className="border border-gray-200 rounded-lg p-5 md:p-6 flex gap-5 md:gap-6 hover:shadow-md transition-shadow duration-200"
-                >
-                  {/* Product Image */}
-                  <div className="relative w-20 md:w-24 h-20 md:h-24 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
-                    <Image
-                      src={item.image}
-                      alt={item.name}
-                      fill
-                      className="object-cover"
-                    />
+          <div className="lg:col-span-2 space-y-3">
+            {items.map((item) => (
+              <div
+                key={`${item.productId}-${item.size}`}
+                className="border border-border bg-card hover:border-primary transition-colors p-4 md:p-5 flex gap-4 md:gap-6"
+              >
+                <div className="relative w-20 md:w-28 h-24 md:h-32 bg-secondary overflow-hidden flex-shrink-0">
+                  <Image src={item.image} alt={item.name} fill className="object-cover" />
+                </div>
+
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-start justify-between gap-3 mb-2">
+                    <h3 className="font-display text-lg md:text-xl uppercase tracking-tight leading-tight">
+                      {item.name}
+                    </h3>
+                    <button
+                      onClick={() => removeItem(item.productId, item.size)}
+                      className="p-2 hover:text-primary transition-colors flex-shrink-0"
+                      aria-label="Remove"
+                    >
+                      <Trash2 size={16} />
+                    </button>
                   </div>
+                  <p className="font-mono text-[10px] tracking-[0.18em] uppercase text-muted-foreground mb-4">
+                    Size {item.size}
+                  </p>
 
-                  {/* Product Info */}
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-bold text-base md:text-lg mb-1 truncate">{item.name}</h3>
-                    <p className="text-xs md:text-sm text-gray-600 mb-4 font-medium">Size: {item.size}</p>
+                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
+                    <div className="flex items-center border border-border w-fit">
+                      <button
+                        onClick={() =>
+                          updateQuantity(item.productId, item.size, Math.max(1, item.quantity - 1))
+                        }
+                        className="p-2 hover:bg-primary hover:text-primary-foreground transition-colors"
+                        aria-label="Decrease"
+                      >
+                        <Minus size={14} />
+                      </button>
+                      <span className="px-4 font-mono text-sm">{item.quantity}</span>
+                      <button
+                        onClick={() => updateQuantity(item.productId, item.size, item.quantity + 1)}
+                        className="p-2 hover:bg-primary hover:text-primary-foreground transition-colors"
+                        aria-label="Increase"
+                      >
+                        <Plus size={14} />
+                      </button>
+                    </div>
 
-                    <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
-                      <div className="flex items-center gap-1 border-2 border-gray-300 rounded-lg w-fit">
-                        <button
-                          onClick={() => updateQuantity(item.productId, item.size, Math.max(1, item.quantity - 1))}
-                          className="p-2 hover:bg-gray-100 transition-colors"
-                          aria-label="Decrease quantity"
-                        >
-                          <Minus size={16} />
-                        </button>
-                        <span className="px-4 py-1 font-medium text-sm">{item.quantity}</span>
-                        <button
-                          onClick={() => updateQuantity(item.productId, item.size, item.quantity + 1)}
-                          className="p-2 hover:bg-gray-100 transition-colors"
-                          aria-label="Increase quantity"
-                        >
-                          <Plus size={16} />
-                        </button>
-                      </div>
-
-                      <div className="text-right flex-shrink-0">
-                        <p className="font-bold text-lg">₹{item.price * item.quantity}</p>
-                        <p className="text-xs md:text-sm text-gray-600">₹{item.price} each</p>
-                      </div>
+                    <div className="text-right">
+                      <p className="font-display text-2xl text-foreground">
+                        ₹{(item.price * item.quantity).toLocaleString('en-IN')}
+                      </p>
+                      <p className="font-mono text-[10px] tracking-[0.18em] uppercase text-muted-foreground">
+                        ₹{item.price.toLocaleString('en-IN')} ea.
+                      </p>
                     </div>
                   </div>
-
-                  {/* Remove Button */}
-                  <button
-                    onClick={() => removeItem(item.productId, item.size)}
-                    className="p-2 hover:bg-red-50 text-red-600 rounded-lg transition-colors duration-200 flex-shrink-0"
-                    aria-label="Remove item"
-                  >
-                    <Trash2 size={20} />
-                  </button>
                 </div>
-              ))}
-            </div>
+              </div>
+            ))}
 
-            <div className="mt-8 md:mt-10">
-              <Link href="/shop" className="text-black hover:text-gray-700 font-semibold text-sm md:text-base transition-colors duration-200">
-                ← Continue Shopping
+            <div className="pt-6">
+              <Link
+                href="/shop"
+                className="group inline-flex items-center gap-2 font-mono text-xs tracking-[0.2em] uppercase font-bold border-b border-foreground/30 hover:border-primary hover:text-primary pb-1 transition-colors"
+              >
+                <ArrowLeft
+                  size={14}
+                  className="group-hover:-translate-x-1 transition-transform"
+                />
+                Keep shopping
               </Link>
             </div>
           </div>
 
-          {/* Order Summary */}
+          {/* Summary */}
           <div className="lg:col-span-1">
-            <div className="border-2 border-gray-200 rounded-lg p-6 md:p-8 sticky top-24 bg-gray-50 shadow-sm">
-              <h2 className="font-bold text-lg md:text-xl mb-8">Order Summary</h2>
+            <div className="border border-border bg-card p-6 md:p-7 sticky top-32">
+              <h2 className="font-display text-2xl uppercase tracking-tight mb-6 pb-4 border-b border-border">
+                Summary
+              </h2>
 
-              <div className="space-y-4 mb-8">
-                <div className="flex justify-between text-sm font-medium">
-                  <span className="text-gray-700">Subtotal</span>
-                  <span className="text-black font-semibold">₹{total}</span>
+              <div className="space-y-3 mb-6 font-mono text-xs tracking-[0.15em] uppercase">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Subtotal</span>
+                  <span>₹{total.toLocaleString('en-IN')}</span>
                 </div>
-                <div className="flex justify-between text-sm font-medium">
-                  <span className="text-gray-700">Shipping</span>
-                  <span className="text-green-600 font-semibold">Free</span>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Shipping</span>
+                  <span className="text-primary">Free</span>
                 </div>
-                <div className="flex justify-between text-sm font-medium">
-                  <span className="text-gray-700">Tax (estimated)</span>
-                  <span className="text-black font-semibold">₹0</span>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Tax</span>
+                  <span>₹0</span>
                 </div>
               </div>
 
-              <div className="border-t-2 border-gray-300 pt-6 mb-8">
-                <div className="flex justify-between items-center">
-                  <span className="font-bold text-lg">Total</span>
-                  <span className="text-2xl font-bold text-black">₹{total}</span>
+              <div className="border-t border-border pt-4 mb-6">
+                <div className="flex justify-between items-end">
+                  <span className="font-mono text-xs tracking-[0.2em] uppercase text-muted-foreground">
+                    Total
+                  </span>
+                  <span className="font-display text-4xl">
+                    ₹{total.toLocaleString('en-IN')}
+                  </span>
                 </div>
               </div>
 
-              <div className="space-y-3">
+              <div className="space-y-2">
+                <Link
+                  href="/checkout"
+                  className="block w-full bg-primary text-primary-foreground py-4 font-mono text-xs tracking-[0.2em] uppercase font-bold text-center hover:bg-foreground hover:text-background transition-colors"
+                >
+                  Checkout →
+                </Link>
                 <a
                   href={`${WHATSAPP_URL}?text=${encodeURIComponent(whatsappMessage)}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="block w-full bg-green-600 hover:bg-green-700 text-white py-3 md:py-4 rounded-lg font-bold text-center transition-all duration-200 active:scale-95 shadow-sm hover:shadow-md"
+                  className="block w-full border border-border py-4 font-mono text-xs tracking-[0.2em] uppercase font-bold text-center hover:border-primary hover:text-primary transition-colors"
                 >
-                  📱 Order via WhatsApp
+                  Order via WhatsApp
                 </a>
-                <Link 
-                  href="/checkout" 
-                  className="block w-full bg-black hover:bg-gray-900 text-white py-3 md:py-4 rounded-lg font-bold text-center transition-all duration-200 active:scale-95 shadow-sm hover:shadow-md"
-                >
-                  Proceed to Checkout
-                </Link>
                 <button
                   onClick={clearCart}
-                  className="w-full border-2 border-gray-300 hover:bg-gray-100 text-black py-3 md:py-4 rounded-lg font-bold transition-all duration-200"
+                  className="block w-full font-mono text-[10px] tracking-[0.2em] uppercase text-muted-foreground hover:text-destructive transition-colors mt-3"
                 >
-                  Clear Cart
+                  Clear bag
                 </button>
               </div>
-
-              <p className="text-xs text-gray-600 mt-6 text-center leading-relaxed">
-                You&apos;ll receive order confirmation via email/WhatsApp
-              </p>
             </div>
           </div>
         </div>
       </div>
       <Footer />
     </div>
-  );
+  )
 }

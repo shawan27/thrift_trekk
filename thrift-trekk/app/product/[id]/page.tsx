@@ -1,41 +1,54 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
-import { Header } from '@/components/header';
-import { Footer } from '@/components/footer';
-import { ProductCard } from '@/components/product-card';
-import { getProductById, products } from '@/lib/products';
-import { useCart } from '@/lib/cart-context';
-import { WHATSAPP_URL } from '@/lib/constants';
-import Image from 'next/image';
-import Link from 'next/link';
-import { Check, Share2 } from 'lucide-react';
-import { useParams } from 'next/navigation';
+import { useState } from 'react'
+import { Header } from '@/components/header'
+import { Footer } from '@/components/footer'
+import { ProductCard } from '@/components/product-card'
+import { getProductById, products } from '@/lib/products'
+import { useCart } from '@/lib/cart-context'
+import { WHATSAPP_URL } from '@/lib/constants'
+import Image from 'next/image'
+import Link from 'next/link'
+import { Check, Share2, ShoppingBag, Truck, RotateCcw, ShieldCheck, ChevronRight } from 'lucide-react'
+import { useParams } from 'next/navigation'
+import { motion, AnimatePresence } from 'framer-motion'
+import { Reveal } from '@/components/effects/reveal'
+import { Magnetic } from '@/components/effects/magnetic'
 
 export default function ProductPage() {
-  const params = useParams();
-  const productId = params.id as string;
-  const product = getProductById(productId);
-  const { addItem } = useCart();
+  const params = useParams()
+  const productId = params.id as string
+  const product = getProductById(productId)
+  const { addItem } = useCart()
 
-  const [selectedSize, setSelectedSize] = useState(product?.sizes[0] || 28);
-  const [quantity, setQuantity] = useState(1);
-  const [addedToCart, setAddedToCart] = useState(false);
+  const [selectedSize, setSelectedSize] = useState(product?.sizes[0] || 28)
+  const [quantity, setQuantity] = useState(1)
+  const [addedToCart, setAddedToCart] = useState(false)
 
   if (!product) {
     return (
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen bg-background text-foreground">
         <Header />
-        <div className="max-w-7xl mx-auto px-4 py-16">
-          <p className="text-center text-gray-600">Product not found</p>
+        <div className="max-w-[1600px] mx-auto px-4 py-28 text-center">
+          <h1 className="text-huge font-display mb-6">Not found.</h1>
+          <Link
+            href="/shop"
+            className="inline-flex items-center gap-3 bg-primary text-primary-foreground font-mono text-xs tracking-[0.2em] uppercase font-bold px-7 py-4 hover:bg-foreground hover:text-background transition-colors"
+          >
+            Back to shop
+          </Link>
         </div>
         <Footer />
       </div>
-    );
+    )
   }
 
-  const relatedProducts = products.filter(p => p.category === product.category && p.id !== product.id).slice(0, 4);
-  const discount = Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100);
+  const relatedProducts = products
+    .filter((p) => p.category === product.category && p.id !== product.id)
+    .slice(0, 4)
+  const discount = Math.round(
+    ((product.originalPrice - product.price) / product.originalPrice) * 100
+  )
 
   const handleAddToCart = () => {
     addItem({
@@ -45,102 +58,122 @@ export default function ProductPage() {
       price: product.price,
       name: product.name,
       image: product.image,
-    });
-    setAddedToCart(true);
-    setTimeout(() => setAddedToCart(false), 2000);
-  };
+    })
+    setAddedToCart(true)
+    setTimeout(() => setAddedToCart(false), 1800)
+  }
 
-  const whatsappMessage = `Hi, I'm interested in: ${product.name} (Size ${selectedSize}) x${quantity}. Price: ₹${product.price * quantity}. Please confirm availability.`;
+  const whatsappMessage = `Hi, I'm interested in: ${product.name} (Size ${selectedSize}) x${quantity}. Price: ₹${product.price * quantity}.`
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-background text-foreground">
       <Header />
 
-      <div className="max-w-7xl mx-auto px-4 py-8">
+      <div className="max-w-[1600px] mx-auto px-4 md:px-8 py-8 md:py-12">
         {/* Breadcrumb */}
-        <div className="flex items-center gap-2 text-sm mb-8">
-          <Link href="/" className="text-gray-600 hover:text-black">Home</Link>
-          <span className="text-gray-400">/</span>
-          <Link href="/shop" className="text-gray-600 hover:text-black">Shop</Link>
-          <span className="text-gray-400">/</span>
-          <span className="text-black">{product.name}</span>
+        <div className="flex items-center gap-2 font-mono text-[10px] tracking-[0.18em] uppercase text-muted-foreground mb-10">
+          <Link href="/" className="hover:text-primary transition-colors">Home</Link>
+          <ChevronRight size={12} />
+          <Link href="/shop" className="hover:text-primary transition-colors">Shop</Link>
+          <ChevronRight size={12} />
+          <span className="text-foreground">{product.name}</span>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-16">
-          {/* Product Image */}
-          <div className="sticky top-20 h-fit">
-            <div className="relative bg-gray-100 rounded-lg h-96 md:h-[600px] overflow-hidden mb-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-16 mb-20">
+          {/* Image */}
+          <div className="md:sticky md:top-32 md:self-start">
+            <div className="relative bg-card border border-border aspect-[4/5] overflow-hidden">
               <Image
                 src={product.image}
                 alt={product.name}
                 fill
                 className="object-cover"
+                priority
               />
               {product.tag && (
-                <div className={`absolute top-4 right-4 px-3 py-1 text-xs font-bold text-white rounded-full ${
-                  product.tag === 'Bestseller' ? 'bg-red-500' :
-                  product.tag === 'New' ? 'bg-green-500' :
-                  'bg-orange-500'
-                }`}>
-                  {product.tag === 'Bestseller' ? '⭐ Bestseller' :
-                   product.tag === 'New' ? '🆕 New' :
-                   '💰 Sale'}
+                <span
+                  className="sticker top-5 left-5"
+                  style={{
+                    background:
+                      product.tag === 'Bestseller'
+                        ? 'var(--primary)'
+                        : product.tag === 'New'
+                        ? 'var(--foreground)'
+                        : '#ff3939',
+                    color:
+                      product.tag === 'New' ? 'var(--background)' : 'var(--primary-foreground)',
+                  }}
+                >
+                  {product.tag === 'Bestseller'
+                    ? '★ TOP SELLER'
+                    : product.tag === 'New'
+                    ? '✦ JUST IN'
+                    : '— SALE —'}
+                </span>
+              )}
+              {discount > 0 && (
+                <div className="absolute top-5 right-5 bg-foreground text-background font-mono text-[10px] tracking-[0.15em] uppercase px-2.5 py-1.5 font-bold">
+                  -{discount}%
                 </div>
               )}
             </div>
           </div>
 
-          {/* Product Details */}
+          {/* Details */}
           <div>
-            <h1 className="text-3xl md:text-4xl font-bold mb-3">{product.name}</h1>
+            <Reveal>
+              <p className="font-mono text-xs tracking-[0.2em] uppercase text-muted-foreground mb-4">
+                {product.category} / Drop 06
+              </p>
+            </Reveal>
+            <h1 className="text-big font-display mb-6 leading-[0.95]">{product.name}</h1>
 
-            {/* Pricing */}
-            <div className="flex items-center gap-3 mb-6">
-              <span className="text-3xl font-bold text-black">₹{product.price}</span>
+            <div className="flex items-baseline gap-4 mb-8">
+              <span className="font-display text-5xl">
+                ₹{product.price.toLocaleString('en-IN')}
+              </span>
               {product.originalPrice > product.price && (
-                <>
-                  <span className="text-lg text-gray-400 line-through">₹{product.originalPrice}</span>
-                  <span className="bg-red-500 text-white px-3 py-1 rounded text-sm font-bold">{discount}% OFF</span>
-                </>
+                <span className="font-mono text-sm text-muted-foreground line-through">
+                  ₹{product.originalPrice.toLocaleString('en-IN')}
+                </span>
               )}
             </div>
 
-            <p className="text-gray-600 mb-8 text-pretty">{product.description}</p>
+            <p className="text-base md:text-lg text-foreground/85 leading-snug mb-10 max-w-lg text-pretty">
+              {product.description}
+            </p>
 
-            {/* Product Details */}
-            <div className="border-t border-gray-200 py-6 mb-6">
-              <div className="grid grid-cols-2 gap-6 mb-6">
-                <div>
-                  <p className="text-xs text-gray-500 uppercase mb-1">Fit</p>
-                  <p className="font-semibold">{product.fit}</p>
+            {/* Specs */}
+            <div className="grid grid-cols-2 gap-px bg-border border border-border mb-10">
+              {[
+                { l: 'Fit', v: product.fit },
+                { l: 'Fabric', v: product.fabric },
+                { l: 'Stretch', v: product.stretch },
+                { l: 'Care', v: product.care },
+              ].map((s) => (
+                <div key={s.l} className="bg-background p-4">
+                  <p className="font-mono text-[10px] tracking-[0.2em] uppercase text-muted-foreground mb-1">
+                    {s.l}
+                  </p>
+                  <p className="font-mono text-sm">{s.v}</p>
                 </div>
-                <div>
-                  <p className="text-xs text-gray-500 uppercase mb-1">Fabric</p>
-                  <p className="font-semibold">{product.fabric}</p>
-                </div>
-                <div>
-                  <p className="text-xs text-gray-500 uppercase mb-1">Stretch</p>
-                  <p className="font-semibold">{product.stretch}</p>
-                </div>
-                <div>
-                  <p className="text-xs text-gray-500 uppercase mb-1">Care</p>
-                  <p className="font-semibold text-sm">{product.care}</p>
-                </div>
-              </div>
+              ))}
             </div>
 
-            {/* Size Selection */}
-            <div className="mb-6">
-              <label className="block text-sm font-bold mb-3">Select Size</label>
-              <div className="grid grid-cols-3 gap-2">
-                {product.sizes.map(size => (
+            {/* Size */}
+            <div className="mb-8">
+              <p className="font-mono text-[10px] tracking-[0.2em] uppercase text-muted-foreground mb-3">
+                Pick a size
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {product.sizes.map((size) => (
                   <button
                     key={size}
                     onClick={() => setSelectedSize(size)}
-                    className={`py-3 border rounded font-semibold transition ${
+                    className={`w-12 h-12 font-mono text-sm border transition-colors ${
                       selectedSize === size
-                        ? 'bg-black text-white border-black'
-                        : 'border-gray-300 text-black hover:border-black'
+                        ? 'bg-primary text-primary-foreground border-primary'
+                        : 'border-border text-foreground hover:border-primary hover:text-primary'
                     }`}
                   >
                     {size}
@@ -149,88 +182,102 @@ export default function ProductPage() {
               </div>
             </div>
 
-            {/* Quantity Selection */}
-            <div className="mb-8">
-              <label className="block text-sm font-bold mb-3">Quantity</label>
-              <div className="flex items-center gap-3 border border-gray-300 rounded w-fit">
+            {/* Quantity */}
+            <div className="mb-10">
+              <p className="font-mono text-[10px] tracking-[0.2em] uppercase text-muted-foreground mb-3">
+                Quantity
+              </p>
+              <div className="flex items-center border border-border w-fit">
                 <button
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  className="px-4 py-2 hover:bg-gray-100"
+                  className="px-4 py-3 hover:bg-primary hover:text-primary-foreground transition-colors"
                 >
                   −
                 </button>
-                <span className="px-6 py-2 font-semibold">{quantity}</span>
+                <span className="px-6 font-mono text-sm">{quantity}</span>
                 <button
                   onClick={() => setQuantity(quantity + 1)}
-                  className="px-4 py-2 hover:bg-gray-100"
+                  className="px-4 py-3 hover:bg-primary hover:text-primary-foreground transition-colors"
                 >
                   +
                 </button>
               </div>
             </div>
 
-            {/* Action Buttons */}
-            <div className="space-y-3 mb-8">
-              <button
-                onClick={handleAddToCart}
-                className={`w-full py-4 rounded font-bold text-lg transition ${
-                  addedToCart
-                    ? 'bg-green-500 text-white'
-                    : 'bg-black hover:bg-gray-800 text-white'
-                }`}
-              >
-                {addedToCart ? '✓ Added to Cart' : 'Add to Cart'}
-              </button>
-
+            {/* Actions */}
+            <div className="space-y-3 mb-10">
+              <Magnetic strength={0.15}>
+                <button
+                  onClick={handleAddToCart}
+                  className="w-full bg-primary text-primary-foreground py-5 font-mono text-xs tracking-[0.2em] uppercase font-bold flex items-center justify-center gap-3 hover:bg-foreground hover:text-background transition-colors"
+                >
+                  <AnimatePresence mode="wait">
+                    {addedToCart ? (
+                      <motion.span
+                        key="added"
+                        initial={{ y: 10, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        exit={{ y: -10, opacity: 0 }}
+                        className="flex items-center gap-2"
+                      >
+                        <Check size={16} strokeWidth={3} /> Added to bag
+                      </motion.span>
+                    ) : (
+                      <motion.span
+                        key="add"
+                        initial={{ y: 10, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        exit={{ y: -10, opacity: 0 }}
+                        className="flex items-center gap-2"
+                      >
+                        <ShoppingBag size={16} strokeWidth={2.4} /> Add to bag — ₹
+                        {(product.price * quantity).toLocaleString('en-IN')}
+                      </motion.span>
+                    )}
+                  </AnimatePresence>
+                </button>
+              </Magnetic>
               <a
                 href={`${WHATSAPP_URL}?text=${encodeURIComponent(whatsappMessage)}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="block w-full bg-green-600 hover:bg-green-700 text-white py-4 rounded font-bold text-center transition"
+                className="block w-full text-center border border-foreground/40 py-5 font-mono text-xs tracking-[0.2em] uppercase font-bold hover:border-primary hover:text-primary transition-colors"
               >
                 Order via WhatsApp
               </a>
-
-              <button className="w-full border-2 border-gray-300 hover:bg-gray-50 py-4 rounded font-bold transition flex items-center justify-center gap-2">
-                <Share2 size={18} />
+              <button className="w-full border border-border py-4 font-mono text-xs tracking-[0.2em] uppercase font-bold flex items-center justify-center gap-2 hover:border-primary hover:text-primary transition-colors">
+                <Share2 size={14} />
                 Share
               </button>
             </div>
 
-            {/* Trust Section */}
-            <div className="border-t border-gray-200 pt-6 space-y-3">
-              <div className="flex items-start gap-3">
-                <Check size={20} className="text-green-600 flex-shrink-0 mt-1" />
-                <div>
-                  <p className="font-semibold">30-Day Returns</p>
-                  <p className="text-sm text-gray-600">Not satisfied? Easy returns</p>
+            {/* Trust */}
+            <div className="border-t border-border pt-8 space-y-4">
+              {[
+                { I: Truck, t: 'Free shipping on orders ₹1499+' },
+                { I: RotateCcw, t: '30-day easy returns' },
+                { I: ShieldCheck, t: 'Razorpay-secured checkout' },
+              ].map(({ I, t }) => (
+                <div key={t} className="flex items-center gap-3">
+                  <I size={16} className="text-primary flex-shrink-0" strokeWidth={2} />
+                  <p className="font-mono text-xs tracking-[0.15em] uppercase text-foreground/85">
+                    {t}
+                  </p>
                 </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <Check size={20} className="text-green-600 flex-shrink-0 mt-1" />
-                <div>
-                  <p className="font-semibold">Free Shipping</p>
-                  <p className="text-sm text-gray-600">On orders above ₹1499</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <Check size={20} className="text-green-600 flex-shrink-0 mt-1" />
-                <div>
-                  <p className="font-semibold">Secure Checkout</p>
-                  <p className="text-sm text-gray-600">100% safe and encrypted</p>
-                </div>
-              </div>
+              ))}
             </div>
           </div>
         </div>
 
-        {/* Related Products */}
+        {/* Related */}
         {relatedProducts.length > 0 && (
-          <div className="border-t border-gray-200 pt-16">
-            <h2 className="text-3xl font-bold mb-8">Related Products</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {relatedProducts.map(prod => (
-                <ProductCard key={prod.id} product={prod} />
+          <div className="border-t border-border pt-16 md:pt-20">
+            <h2 className="text-huge font-display mb-12">
+              You might <span className="text-primary italic">also dig.</span>
+            </h2>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+              {relatedProducts.map((prod, i) => (
+                <ProductCard key={prod.id} product={prod} index={i} />
               ))}
             </div>
           </div>
@@ -239,5 +286,5 @@ export default function ProductPage() {
 
       <Footer />
     </div>
-  );
+  )
 }

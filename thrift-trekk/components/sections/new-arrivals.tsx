@@ -1,52 +1,64 @@
-'use client';
+'use client'
 
-import { ProductCard } from '@/components/product-card';
-import { products } from '@/lib/products';
-import Link from 'next/link';
-import { ArrowRight } from 'lucide-react';
+import { ProductCard } from '@/components/product-card'
+import { products } from '@/lib/products'
+import Link from 'next/link'
+import { ArrowRight } from 'lucide-react'
+import { Reveal, RevealText } from '@/components/effects/reveal'
 
 export function NewArrivalsSection() {
-  const newArrivals = products.filter(p => p.tag === 'New').slice(0, 4);
+  const newArrivals = products.filter((p) => p.tag === 'New').slice(0, 4)
+  const fillers = products.filter((p) => p.tag !== 'New').slice(0, 4 - newArrivals.length)
+  const display = [...newArrivals, ...fillers].slice(0, 4)
 
-  if (newArrivals.length === 0) return null;
+  if (display.length === 0) return null
 
   return (
-    <section className="w-full bg-gray-50 py-20 md:py-28">
-      <div className="max-w-7xl mx-auto px-4 md:px-6">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-14 md:mb-16">
+    <section className="w-full bg-card text-foreground py-20 md:py-28 border-b border-border">
+      <div className="max-w-[1600px] mx-auto px-4 md:px-8">
+        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-12 md:mb-16">
           <div>
-            <h2 className="text-3xl md:text-5xl font-bold mb-3 text-pretty leading-tight">
-              ✨ New Arrivals
+            <Reveal>
+              <p className="font-mono text-xs tracking-[0.2em] uppercase text-muted-foreground mb-4 flex items-center gap-2">
+                <span className="inline-block w-6 h-px bg-primary" />
+                Section / 04 — Just dropped
+              </p>
+            </Reveal>
+            <h2 className="text-huge font-display">
+              <RevealText text="Fresh" />{' '}
+              <RevealText text="off the line." className="text-primary italic" delay={0.1} />
             </h2>
-            <p className="text-base md:text-lg text-gray-600 text-pretty leading-relaxed">
-              Fresh releases from our latest collection
-            </p>
           </div>
-          <Link 
-            href="/shop" 
-            className="hidden md:flex items-center gap-2 text-black hover:text-gray-700 font-bold text-lg transition-colors duration-200 group"
-          >
-            View All 
-            <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
-          </Link>
+          <Reveal delay={0.2}>
+            <Link
+              href="/shop"
+              className="group hidden md:inline-flex items-center gap-3 font-mono text-xs tracking-[0.2em] uppercase font-bold border-b border-foreground/30 hover:border-primary hover:text-primary pb-1 transition-colors"
+            >
+              View all
+              <ArrowRight
+                size={14}
+                className="group-hover:translate-x-1 transition-transform"
+              />
+            </Link>
+          </Reveal>
         </div>
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-          {newArrivals.map(product => (
-            <ProductCard key={product.id} product={product} />
+          {display.map((product, i) => (
+            <ProductCard key={product.id} product={product} index={i} />
           ))}
         </div>
 
-        <div className="text-center mt-10 md:hidden">
-          <Link 
-            href="/shop" 
-            className="inline-flex items-center gap-2 bg-black text-white px-6 py-3 rounded-lg font-bold hover:bg-gray-900 transition-all duration-200 active:scale-95"
+        <div className="text-center mt-12 md:hidden">
+          <Link
+            href="/shop"
+            className="inline-flex items-center gap-3 bg-primary text-primary-foreground font-mono text-xs tracking-[0.2em] uppercase font-bold px-7 py-4 hover:bg-foreground hover:text-background transition-colors"
           >
-            View All New Arrivals 
-            <ArrowRight size={18} />
+            View all arrivals
+            <ArrowRight size={14} />
           </Link>
         </div>
       </div>
     </section>
-  );
+  )
 }

@@ -1,17 +1,18 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
-import { Header } from '@/components/header';
-import { Footer } from '@/components/footer';
-import { useCart } from '@/lib/cart-context';
-import Link from 'next/link';
-import { CheckCircle } from 'lucide-react';
+import { useState } from 'react'
+import { Header } from '@/components/header'
+import { Footer } from '@/components/footer'
+import { useCart } from '@/lib/cart-context'
+import Link from 'next/link'
+import { CheckCircle, ArrowRight } from 'lucide-react'
+import { Magnetic } from '@/components/effects/magnetic'
 
-type CheckoutStep = 'info' | 'summary' | 'payment' | 'success';
+type CheckoutStep = 'info' | 'summary' | 'payment' | 'success'
 
 export default function CheckoutPage() {
-  const { items, total, clearCart } = useCart();
-  const [currentStep, setCurrentStep] = useState<CheckoutStep>('info');
+  const { items, total, clearCart } = useCart()
+  const [currentStep, setCurrentStep] = useState<CheckoutStep>('info')
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -21,306 +22,260 @@ export default function CheckoutPage() {
     city: '',
     zipCode: '',
     paymentMethod: 'cod',
-  });
+  })
 
   if (items.length === 0 && currentStep !== 'success') {
     return (
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen bg-background text-foreground">
         <Header />
-        <div className="max-w-7xl mx-auto px-4 py-16">
-          <p className="text-center text-gray-600 mb-6">Your cart is empty</p>
-          <div className="text-center">
-            <Link href="/shop" className="inline-block bg-black text-white px-6 py-3 rounded font-semibold hover:bg-gray-800 transition">
-              Continue Shopping
-            </Link>
-          </div>
+        <div className="max-w-[1600px] mx-auto px-4 md:px-8 py-28 text-center">
+          <h1 className="text-huge font-display mb-6">Bag is empty.</h1>
+          <Link
+            href="/shop"
+            className="inline-flex items-center gap-3 bg-primary text-primary-foreground font-mono text-xs tracking-[0.2em] uppercase font-bold px-7 py-4 hover:bg-foreground hover:text-background transition-colors"
+          >
+            Browse the catalog
+          </Link>
         </div>
         <Footer />
       </div>
-    );
+    )
   }
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target
+    setFormData((prev) => ({ ...prev, [name]: value }))
+  }
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (currentStep === 'info') {
-      setCurrentStep('summary');
-    } else if (currentStep === 'summary') {
-      setCurrentStep('payment');
-    } else if (currentStep === 'payment') {
-      clearCart();
-      setCurrentStep('success');
+    e.preventDefault()
+    if (currentStep === 'info') setCurrentStep('summary')
+    else if (currentStep === 'summary') setCurrentStep('payment')
+    else if (currentStep === 'payment') {
+      clearCart()
+      setCurrentStep('success')
     }
-  };
+  }
 
-  const steps = ['info', 'summary', 'payment'];
-  const stepLabels = {
-    info: 'Shipping Info',
-    summary: 'Order Summary',
-    payment: 'Payment',
-    success: 'Success',
-  };
+  const steps: CheckoutStep[] = ['info', 'summary', 'payment']
+  const stepLabels = { info: 'Info', summary: 'Review', payment: 'Pay', success: 'Done' }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-background text-foreground">
       <Header />
 
-      <div className="max-w-4xl mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold mb-8">Checkout</h1>
+      <div className="max-w-[1400px] mx-auto px-4 md:px-8 py-12 md:py-16">
+        <p className="font-mono text-xs tracking-[0.2em] uppercase text-muted-foreground mb-4 flex items-center gap-2">
+          <span className="inline-block w-6 h-px bg-primary" />
+          Checkout
+        </p>
+        <h1 className="text-huge font-display mb-12">
+          Almost <span className="text-primary italic">there.</span>
+        </h1>
 
-        {/* Progress Indicator */}
+        {/* Stepper */}
         {currentStep !== 'success' && (
-          <div className="flex justify-between mb-8">
-            {steps.map((step, idx) => (
-              <div key={step} className="flex flex-col items-center flex-1">
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold mb-2 ${
-                  (currentStep === step || steps.indexOf(currentStep) > idx)
-                    ? 'bg-black text-white'
-                    : 'bg-gray-200 text-gray-600'
-                }`}>
-                  {idx + 1}
+          <div className="flex items-center mb-12 border-y border-border">
+            {steps.map((step, idx) => {
+              const active = currentStep === step
+              const done = steps.indexOf(currentStep) > idx
+              return (
+                <div
+                  key={step}
+                  className={`flex items-center gap-3 flex-1 py-4 px-3 md:px-5 ${
+                    idx !== steps.length - 1 ? 'border-r border-border' : ''
+                  } ${active ? 'bg-primary text-primary-foreground' : done ? 'bg-card' : ''}`}
+                >
+                  <span className="font-display text-2xl md:text-3xl">0{idx + 1}</span>
+                  <span className="font-mono text-[10px] md:text-xs tracking-[0.18em] uppercase font-bold">
+                    {stepLabels[step]}
+                  </span>
                 </div>
-                <p className="text-sm font-medium text-center">{Object.values(stepLabels)[idx]}</p>
-                {idx < steps.length - 1 && (
-                  <div className={`h-1 flex-1 mt-2 ${
-                    steps.indexOf(currentStep) > idx ? 'bg-black' : 'bg-gray-200'
-                  }`} />
-                )}
-              </div>
-            ))}
+              )
+            })}
           </div>
         )}
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {/* Main Content */}
           <div className="md:col-span-2">
             {currentStep === 'success' && (
-              <div className="text-center py-12">
-                <CheckCircle size={64} className="text-green-600 mx-auto mb-4" />
-                <h2 className="text-3xl font-bold mb-2">Order Placed Successfully!</h2>
-                <p className="text-gray-600 mb-6">
-                  Thank you for your order. You will receive a confirmation email and WhatsApp message shortly.
+              <div className="border border-primary bg-card p-8 md:p-12 text-center">
+                <CheckCircle size={48} className="text-primary mx-auto mb-6" strokeWidth={2} />
+                <h2 className="text-big font-display mb-4">Order placed.</h2>
+                <p className="text-muted-foreground mb-8 leading-relaxed max-w-md mx-auto">
+                  We&apos;ll send a confirmation via email and WhatsApp shortly. Welcome to the trekk.
                 </p>
-                <div className="bg-gray-50 p-6 rounded-lg mb-6 text-left">
-                  <h3 className="font-bold mb-3">Order Details</h3>
-                  <p className="text-sm mb-2">Name: {formData.firstName} {formData.lastName}</p>
-                  <p className="text-sm mb-2">Email: {formData.email}</p>
-                  <p className="text-sm mb-2">Phone: {formData.phone}</p>
-                  <p className="text-sm mb-2">Address: {formData.address}, {formData.city} {formData.zipCode}</p>
-                  <p className="text-sm font-bold mt-4 pt-4 border-t">Total: ₹{total}</p>
+                <div className="border border-border p-6 mb-8 text-left max-w-md mx-auto space-y-1.5 font-mono text-xs">
+                  <p className="text-muted-foreground tracking-[0.18em] uppercase mb-3">[ Receipt ]</p>
+                  <p>{formData.firstName} {formData.lastName}</p>
+                  <p>{formData.email}</p>
+                  <p>{formData.phone}</p>
+                  <p>{formData.address}, {formData.city} {formData.zipCode}</p>
+                  <p className="font-display text-2xl text-primary pt-3 border-t border-border mt-3">
+                    Total: ₹{total.toLocaleString('en-IN')}
+                  </p>
                 </div>
-                <Link href="/" className="inline-block bg-black text-white px-6 py-3 rounded font-semibold hover:bg-gray-800 transition">
-                  Back to Home
+                <Link
+                  href="/"
+                  className="inline-flex items-center gap-3 bg-primary text-primary-foreground font-mono text-xs tracking-[0.2em] uppercase font-bold px-7 py-4 hover:bg-foreground hover:text-background transition-colors"
+                >
+                  Back to home
                 </Link>
               </div>
             )}
 
             {currentStep === 'info' && (
-              <form onSubmit={handleSubmit}>
-                <div className="bg-white border border-gray-200 rounded-lg p-6">
-                  <h2 className="text-xl font-bold mb-6">Shipping Information</h2>
-
-                  <div className="grid grid-cols-2 gap-4 mb-4">
-                    <input
-                      type="text"
-                      name="firstName"
-                      placeholder="First Name"
-                      value={formData.firstName}
-                      onChange={handleInputChange}
-                      required
-                      className="border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                    <input
-                      type="text"
-                      name="lastName"
-                      placeholder="Last Name"
-                      value={formData.lastName}
-                      onChange={handleInputChange}
-                      required
-                      className="border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-
-                  <input
-                    type="email"
-                    name="email"
-                    placeholder="Email Address"
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full border border-gray-300 rounded px-4 py-2 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-
-                  <input
-                    type="tel"
-                    name="phone"
-                    placeholder="Phone Number"
-                    value={formData.phone}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full border border-gray-300 rounded px-4 py-2 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-
-                  <input
-                    type="text"
-                    name="address"
-                    placeholder="Street Address"
-                    value={formData.address}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full border border-gray-300 rounded px-4 py-2 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-
-                  <div className="grid grid-cols-2 gap-4 mb-6">
-                    <input
-                      type="text"
-                      name="city"
-                      placeholder="City"
-                      value={formData.city}
-                      onChange={handleInputChange}
-                      required
-                      className="border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                    <input
-                      type="text"
-                      name="zipCode"
-                      placeholder="ZIP Code"
-                      value={formData.zipCode}
-                      onChange={handleInputChange}
-                      required
-                      className="border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-
+              <form onSubmit={handleSubmit} className="border border-border bg-card p-6 md:p-8">
+                <h2 className="font-display text-3xl uppercase tracking-tight mb-8">Shipping info</h2>
+                <div className="grid grid-cols-2 gap-3 mb-3">
+                  <Input name="firstName" placeholder="First name" value={formData.firstName} onChange={handleChange} required />
+                  <Input name="lastName" placeholder="Last name" value={formData.lastName} onChange={handleChange} required />
+                </div>
+                <Input name="email" type="email" placeholder="Email" value={formData.email} onChange={handleChange} required />
+                <Input name="phone" type="tel" placeholder="Phone" value={formData.phone} onChange={handleChange} required />
+                <Input name="address" placeholder="Street address" value={formData.address} onChange={handleChange} required />
+                <div className="grid grid-cols-2 gap-3">
+                  <Input name="city" placeholder="City" value={formData.city} onChange={handleChange} required />
+                  <Input name="zipCode" placeholder="ZIP" value={formData.zipCode} onChange={handleChange} required />
+                </div>
+                <Magnetic strength={0.15}>
                   <button
                     type="submit"
-                    className="w-full bg-black hover:bg-gray-800 text-white py-3 rounded font-bold transition"
+                    className="group w-full bg-primary text-primary-foreground py-4 font-mono text-xs tracking-[0.2em] uppercase font-bold flex items-center justify-center gap-3 mt-6 hover:bg-foreground hover:text-background transition-colors"
                   >
-                    Continue to Summary
+                    Continue to review
+                    <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
                   </button>
-                </div>
+                </Magnetic>
               </form>
             )}
 
             {currentStep === 'summary' && (
-              <form onSubmit={handleSubmit}>
-                <div className="bg-white border border-gray-200 rounded-lg p-6">
-                  <h2 className="text-xl font-bold mb-6">Order Summary</h2>
+              <form onSubmit={handleSubmit} className="border border-border bg-card p-6 md:p-8">
+                <h2 className="font-display text-3xl uppercase tracking-tight mb-8">Review</h2>
 
-                  <div className="bg-gray-50 p-4 rounded-lg mb-6">
-                    <h3 className="font-bold mb-3">Shipping To:</h3>
-                    <p className="text-sm mb-1">{formData.firstName} {formData.lastName}</p>
-                    <p className="text-sm mb-1">{formData.address}</p>
-                    <p className="text-sm mb-1">{formData.city} {formData.zipCode}</p>
-                    <p className="text-sm font-semibold mt-3 text-blue-600 cursor-pointer" onClick={() => setCurrentStep('info')}>
-                      Edit Address
-                    </p>
-                  </div>
+                <div className="border border-border p-5 mb-6">
+                  <p className="font-mono text-[10px] tracking-[0.2em] uppercase text-muted-foreground mb-3">
+                    Shipping to
+                  </p>
+                  <p className="text-base mb-1">{formData.firstName} {formData.lastName}</p>
+                  <p className="text-sm text-muted-foreground">{formData.address}</p>
+                  <p className="text-sm text-muted-foreground">{formData.city} {formData.zipCode}</p>
+                  <button
+                    type="button"
+                    onClick={() => setCurrentStep('info')}
+                    className="font-mono text-[10px] tracking-[0.2em] uppercase text-primary hover:text-foreground mt-3 transition-colors"
+                  >
+                    Edit →
+                  </button>
+                </div>
 
-                  <div className="border-t border-gray-200 pt-4">
-                    <h3 className="font-bold mb-3">Items</h3>
-                    {items.map(item => (
-                      <div key={`${item.productId}-${item.size}`} className="flex justify-between text-sm mb-2">
-                        <span>{item.name} (Size {item.size}) x{item.quantity}</span>
-                        <span>₹{item.price * item.quantity}</span>
+                <div className="border-t border-border pt-6">
+                  <p className="font-mono text-[10px] tracking-[0.2em] uppercase text-muted-foreground mb-4">
+                    Items
+                  </p>
+                  <div className="space-y-2 font-mono text-sm">
+                    {items.map((item) => (
+                      <div key={`${item.productId}-${item.size}`} className="flex justify-between">
+                        <span className="text-foreground/85">{item.name} (size {item.size}) × {item.quantity}</span>
+                        <span>₹{(item.price * item.quantity).toLocaleString('en-IN')}</span>
                       </div>
                     ))}
                   </div>
-
-                  <button
-                    type="submit"
-                    className="w-full bg-black hover:bg-gray-800 text-white py-3 rounded font-bold transition mt-6"
-                  >
-                    Continue to Payment
-                  </button>
                 </div>
+
+                <button
+                  type="submit"
+                  className="group w-full bg-primary text-primary-foreground py-4 font-mono text-xs tracking-[0.2em] uppercase font-bold flex items-center justify-center gap-3 mt-8 hover:bg-foreground hover:text-background transition-colors"
+                >
+                  Continue to payment
+                  <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+                </button>
               </form>
             )}
 
             {currentStep === 'payment' && (
-              <form onSubmit={handleSubmit}>
-                <div className="bg-white border border-gray-200 rounded-lg p-6">
-                  <h2 className="text-xl font-bold mb-6">Payment Method</h2>
+              <form onSubmit={handleSubmit} className="border border-border bg-card p-6 md:p-8">
+                <h2 className="font-display text-3xl uppercase tracking-tight mb-8">Payment</h2>
 
-                  <div className="space-y-3 mb-6">
-                    <label className="flex items-center gap-3 p-4 border-2 border-gray-300 rounded cursor-pointer hover:border-blue-500 transition" style={{borderColor: formData.paymentMethod === 'cod' ? '#1e40af' : '#d1d5db'}}>
+                <div className="space-y-3 mb-8">
+                  {[
+                    { v: 'cod', t: 'Cash on Delivery', d: 'Pay when you receive your order' },
+                    { v: 'online', t: 'Card / UPI', d: 'Razorpay-secured (demo)' },
+                  ].map((opt) => (
+                    <label
+                      key={opt.v}
+                      className={`flex items-start gap-4 p-5 border-2 cursor-pointer transition-colors ${
+                        formData.paymentMethod === opt.v
+                          ? 'border-primary bg-primary/5'
+                          : 'border-border hover:border-primary/40'
+                      }`}
+                    >
                       <input
                         type="radio"
                         name="paymentMethod"
-                        value="cod"
-                        checked={formData.paymentMethod === 'cod'}
-                        onChange={handleInputChange}
+                        value={opt.v}
+                        checked={formData.paymentMethod === opt.v}
+                        onChange={handleChange}
+                        className="mt-1 accent-primary"
                       />
                       <div>
-                        <p className="font-semibold">Cash on Delivery (COD)</p>
-                        <p className="text-sm text-gray-600">Pay when you receive your order</p>
+                        <p className="font-display text-xl uppercase tracking-tight">{opt.t}</p>
+                        <p className="font-mono text-[11px] tracking-[0.15em] uppercase text-muted-foreground mt-1">
+                          {opt.d}
+                        </p>
                       </div>
                     </label>
+                  ))}
+                </div>
 
-                    <label className="flex items-center gap-3 p-4 border-2 border-gray-300 rounded cursor-pointer hover:border-blue-500 transition" style={{borderColor: formData.paymentMethod === 'online' ? '#1e40af' : '#d1d5db'}}>
-                      <input
-                        type="radio"
-                        name="paymentMethod"
-                        value="online"
-                        checked={formData.paymentMethod === 'online'}
-                        onChange={handleInputChange}
-                      />
-                      <div>
-                        <p className="font-semibold">Online Payment</p>
-                        <p className="text-sm text-gray-600">Credit/Debit Card or UPI (Demo)</p>
-                      </div>
-                    </label>
-                  </div>
-
+                <Magnetic strength={0.15}>
                   <button
                     type="submit"
-                    className="w-full bg-black hover:bg-gray-800 text-white py-3 rounded font-bold transition"
+                    className="group w-full bg-primary text-primary-foreground py-5 font-mono text-xs tracking-[0.2em] uppercase font-bold flex items-center justify-center gap-3 hover:bg-foreground hover:text-background transition-colors"
                   >
-                    Place Order
+                    Place order — ₹{total.toLocaleString('en-IN')}
+                    <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
                   </button>
-                </div>
+                </Magnetic>
               </form>
             )}
           </div>
 
-          {/* Order Summary Sidebar */}
+          {/* Order Summary */}
           {currentStep !== 'success' && (
             <div className="md:col-span-1">
-              <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 sticky top-24">
-                <h3 className="font-bold text-lg mb-4">Order Total</h3>
-
-                <div className="space-y-3 mb-6 max-h-96 overflow-y-auto">
-                  {items.map(item => (
-                    <div key={`${item.productId}-${item.size}`} className="flex justify-between text-sm">
-                      <span className="text-gray-600">{item.name} x{item.quantity}</span>
-                      <span className="font-semibold">₹{item.price * item.quantity}</span>
+              <div className="border border-border bg-card p-6 sticky top-32">
+                <h3 className="font-display text-xl uppercase tracking-tight mb-6 pb-4 border-b border-border">
+                  Total
+                </h3>
+                <div className="space-y-2 mb-6 font-mono text-xs tracking-[0.15em] uppercase max-h-72 overflow-y-auto pr-2">
+                  {items.map((item) => (
+                    <div
+                      key={`${item.productId}-${item.size}`}
+                      className="flex justify-between gap-2"
+                    >
+                      <span className="text-muted-foreground truncate">
+                        {item.name.split(' ').slice(0, 3).join(' ')} ×{item.quantity}
+                      </span>
+                      <span className="flex-shrink-0">
+                        ₹{(item.price * item.quantity).toLocaleString('en-IN')}
+                      </span>
                     </div>
                   ))}
                 </div>
-
-                <div className="border-t border-gray-300 pt-4 space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span>Subtotal</span>
-                    <span>₹{total}</span>
+                <div className="border-t border-border pt-4 space-y-2 font-mono text-xs tracking-[0.15em] uppercase">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Subtotal</span>
+                    <span>₹{total.toLocaleString('en-IN')}</span>
                   </div>
-                  <div className="flex justify-between text-sm">
-                    <span>Shipping</span>
-                    <span className="text-green-600">Free</span>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Shipping</span>
+                    <span className="text-primary">Free</span>
                   </div>
-                  <div className="flex justify-between text-sm">
-                    <span>Tax</span>
-                    <span>₹0</span>
-                  </div>
-                  <div className="border-t border-gray-300 pt-2 flex justify-between font-bold text-lg">
-                    <span>Total</span>
-                    <span>₹{total}</span>
+                  <div className="flex justify-between items-end pt-3 mt-3 border-t border-border">
+                    <span className="text-muted-foreground">Total</span>
+                    <span className="font-display text-3xl">₹{total.toLocaleString('en-IN')}</span>
                   </div>
                 </div>
               </div>
@@ -331,5 +286,14 @@ export default function CheckoutPage() {
 
       <Footer />
     </div>
-  );
+  )
+}
+
+function Input(props: React.InputHTMLAttributes<HTMLInputElement>) {
+  return (
+    <input
+      {...props}
+      className="w-full bg-input border border-border px-4 py-3 mb-3 font-mono text-sm focus:outline-none focus:border-primary placeholder:text-muted-foreground"
+    />
+  )
 }

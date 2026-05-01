@@ -1,191 +1,196 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
-import { Header } from '@/components/header';
-import { Footer } from '@/components/footer';
-import { BRAND_INFO, WHATSAPP_URL } from '@/lib/constants';
-import Link from 'next/link';
-import { Mail, Phone, MapPin, MessageCircle } from 'lucide-react';
+import { useState } from 'react'
+import { Header } from '@/components/header'
+import { Footer } from '@/components/footer'
+import { BRAND_INFO, WHATSAPP_URL } from '@/lib/constants'
+import { Mail, Phone, MapPin, MessageCircle, ArrowRight, Check } from 'lucide-react'
+import { Reveal, RevealText } from '@/components/effects/reveal'
+import { Magnetic } from '@/components/effects/magnetic'
+
+const FAQS = [
+  { q: 'How long does shipping take?', a: 'Shipped in 2–3 business days. Standard delivery 5–7 business days. Express options in select cities.' },
+  { q: 'What is your return policy?', a: '30-day returns on unworn, untagged items. Easy and judgement-free.' },
+  { q: 'Do you offer exchanges?', a: 'Yes — free size/color exchanges within 30 days. Just hit us up on WhatsApp.' },
+  { q: 'Payment methods?', a: 'COD, all major cards, UPI, and WhatsApp orders. Razorpay-secured checkout.' },
+]
 
 export default function ContactPage() {
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    subject: '',
-    message: '',
-  });
-  const [submitted, setSubmitted] = useState(false);
+  const [formData, setFormData] = useState({ name: '', email: '', subject: '', message: '' })
+  const [submitted, setSubmitted] = useState(false)
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target
+    setFormData((prev) => ({ ...prev, [name]: value }))
+  }
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setSubmitted(true);
-    setFormData({ name: '', email: '', subject: '', message: '' });
-    setTimeout(() => setSubmitted(false), 3000);
-  };
+    e.preventDefault()
+    setSubmitted(true)
+    setFormData({ name: '', email: '', subject: '', message: '' })
+    setTimeout(() => setSubmitted(false), 3000)
+  }
 
   return (
-    <div className="min-h-screen bg-white">
+    <main className="min-h-screen bg-background text-foreground">
       <Header />
 
-      <div className="max-w-6xl mx-auto px-4 py-16">
-        <h1 className="text-4xl font-bold mb-8 text-center">Contact Us</h1>
+      <section className="border-b border-border">
+        <div className="max-w-[1600px] mx-auto px-4 md:px-8 pt-16 md:pt-24 pb-12 md:pb-20">
+          <Reveal>
+            <p className="font-mono text-xs tracking-[0.2em] uppercase text-muted-foreground mb-4 flex items-center gap-2">
+              <span className="inline-block w-6 h-px bg-primary" />
+              Contact
+            </p>
+          </Reveal>
+          <h1 className="text-huge font-display leading-[0.9]">
+            <RevealText text="Slide" /> <RevealText text="into" delay={0.08} />
+            <br />
+            <RevealText text="our DMs." className="text-primary italic" delay={0.16} />
+          </h1>
+        </div>
+      </section>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-16">
-          {/* Contact Form */}
+      <section className="border-b border-border">
+        <div className="max-w-[1600px] mx-auto px-4 md:px-8 py-16 md:py-20 grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16">
+          {/* Form */}
           <div>
-            <h2 className="text-2xl font-bold mb-6">Get in Touch</h2>
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <Reveal>
+              <h2 className="font-display text-3xl md:text-5xl uppercase tracking-tight mb-2">
+                Send a message.
+              </h2>
+              <p className="font-mono text-xs tracking-[0.2em] uppercase text-muted-foreground mb-8">
+                We reply in &lt; 24 hrs
+              </p>
+            </Reveal>
+
+            <form onSubmit={handleSubmit} className="space-y-3">
               <input
-                type="text"
                 name="name"
-                placeholder="Your Name"
+                placeholder="Your name"
                 value={formData.name}
-                onChange={handleInputChange}
+                onChange={handleChange}
                 required
-                className="w-full border border-gray-300 rounded px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full bg-input border border-border px-5 py-4 font-mono text-sm focus:outline-none focus:border-primary placeholder:text-muted-foreground"
               />
               <input
-                type="email"
                 name="email"
-                placeholder="Your Email"
+                type="email"
+                placeholder="Your email"
                 value={formData.email}
-                onChange={handleInputChange}
+                onChange={handleChange}
                 required
-                className="w-full border border-gray-300 rounded px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full bg-input border border-border px-5 py-4 font-mono text-sm focus:outline-none focus:border-primary placeholder:text-muted-foreground"
               />
               <input
-                type="text"
                 name="subject"
-                placeholder="Subject"
+                placeholder="Subject line"
                 value={formData.subject}
-                onChange={handleInputChange}
+                onChange={handleChange}
                 required
-                className="w-full border border-gray-300 rounded px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full bg-input border border-border px-5 py-4 font-mono text-sm focus:outline-none focus:border-primary placeholder:text-muted-foreground"
               />
               <textarea
                 name="message"
-                placeholder="Your Message"
-                value={formData.message}
-                onChange={handleInputChange}
-                required
+                placeholder="What's on your mind?"
                 rows={5}
-                className="w-full border border-gray-300 rounded px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                value={formData.message}
+                onChange={handleChange}
+                required
+                className="w-full bg-input border border-border px-5 py-4 font-mono text-sm focus:outline-none focus:border-primary resize-none placeholder:text-muted-foreground"
               />
-              <button
-                type="submit"
-                className={`w-full py-3 rounded font-bold transition ${
-                  submitted
-                    ? 'bg-green-500 text-white'
-                    : 'bg-black hover:bg-gray-800 text-white'
-                }`}
-              >
-                {submitted ? '✓ Message Sent' : 'Send Message'}
-              </button>
+              <Magnetic strength={0.2}>
+                <button
+                  type="submit"
+                  className="group flex items-center justify-center gap-3 w-full bg-primary text-primary-foreground py-5 font-mono text-xs tracking-[0.2em] uppercase font-bold hover:bg-foreground hover:text-background transition-colors"
+                >
+                  {submitted ? (
+                    <span className="flex items-center gap-2">
+                      <Check size={14} strokeWidth={3} /> Sent
+                    </span>
+                  ) : (
+                    <span className="flex items-center gap-2">
+                      Send it
+                      <ArrowRight
+                        size={14}
+                        className="group-hover:translate-x-1 transition-transform"
+                      />
+                    </span>
+                  )}
+                </button>
+              </Magnetic>
             </form>
           </div>
 
-          {/* Contact Info */}
+          {/* Info */}
           <div>
-            <h2 className="text-2xl font-bold mb-6">Contact Information</h2>
+            <Reveal>
+              <h2 className="font-display text-3xl md:text-5xl uppercase tracking-tight mb-8">
+                Or just reach out.
+              </h2>
+            </Reveal>
 
-            <div className="space-y-6">
-              <div className="flex gap-4">
-                <Phone className="text-blue-600 flex-shrink-0" size={24} />
-                <div>
-                  <h3 className="font-bold mb-1">Phone</h3>
-                  <a href={`tel:${BRAND_INFO.phone}`} className="text-gray-600 hover:text-black">
-                    {BRAND_INFO.phone}
-                  </a>
-                </div>
-              </div>
-
-              <div className="flex gap-4">
-                <Mail className="text-blue-600 flex-shrink-0" size={24} />
-                <div>
-                  <h3 className="font-bold mb-1">Email</h3>
-                  <a href={`mailto:${BRAND_INFO.email}`} className="text-gray-600 hover:text-black">
-                    {BRAND_INFO.email}
-                  </a>
-                </div>
-              </div>
-
-              <div className="flex gap-4">
-                <MapPin className="text-blue-600 flex-shrink-0" size={24} />
-                <div>
-                  <h3 className="font-bold mb-1">Address</h3>
-                  <p className="text-gray-600">{BRAND_INFO.address}</p>
-                </div>
-              </div>
-
-              <div className="flex gap-4">
-                <MessageCircle className="text-blue-600 flex-shrink-0" size={24} />
-                <div>
-                  <h3 className="font-bold mb-1">WhatsApp</h3>
-                  <a
-                    href={WHATSAPP_URL}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-gray-600 hover:text-black"
-                  >
-                    Chat with us
-                  </a>
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-8 p-6 bg-gray-50 rounded-lg">
-              <h3 className="font-bold mb-2">Response Time</h3>
-              <p className="text-sm text-gray-600 mb-4">We typically respond within 24 hours</p>
-              <a
-                href={WHATSAPP_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded font-semibold transition"
-              >
-                <MessageCircle size={18} />
-                Chat on WhatsApp
-              </a>
+            <div className="space-y-px bg-border border border-border">
+              {[
+                { I: Phone, t: 'Phone', v: BRAND_INFO.phone, href: `tel:${BRAND_INFO.phone}` },
+                { I: Mail, t: 'Email', v: BRAND_INFO.email, href: `mailto:${BRAND_INFO.email}` },
+                { I: MessageCircle, t: 'WhatsApp', v: 'Chat with us live', href: WHATSAPP_URL },
+                { I: MapPin, t: 'Studio', v: BRAND_INFO.address, href: '#' },
+              ].map(({ I, t, v, href }) => (
+                <a
+                  key={t}
+                  href={href}
+                  target={href.startsWith('http') ? '_blank' : undefined}
+                  rel="noopener noreferrer"
+                  className="group flex items-start gap-4 bg-background hover:bg-card transition-colors p-5"
+                >
+                  <div className="p-2.5 border border-border group-hover:border-primary group-hover:text-primary transition-colors">
+                    <I size={16} strokeWidth={2} />
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-mono text-[10px] tracking-[0.2em] uppercase text-muted-foreground mb-1">
+                      {t}
+                    </p>
+                    <p className="font-display text-lg uppercase tracking-tight leading-tight group-hover:text-primary transition-colors">
+                      {v}
+                    </p>
+                  </div>
+                  <ArrowRight
+                    size={18}
+                    className="opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 mt-2"
+                  />
+                </a>
+              ))}
             </div>
           </div>
         </div>
+      </section>
 
-        {/* FAQ Section */}
-        <div className="border-t border-gray-200 pt-16">
-          <h2 className="text-3xl font-bold mb-8 text-center">Frequently Asked Questions</h2>
+      {/* FAQ */}
+      <section className="border-b border-border">
+        <div className="max-w-[1600px] mx-auto px-4 md:px-8 py-16 md:py-20">
+          <Reveal>
+            <p className="font-mono text-xs tracking-[0.2em] uppercase text-muted-foreground mb-4 flex items-center gap-2">
+              <span className="inline-block w-6 h-px bg-primary" />
+              FAQ
+            </p>
+          </Reveal>
+          <h2 className="text-huge font-display mb-12">
+            <RevealText text="Common" /> <RevealText text="questions." delay={0.1} className="text-primary italic" />
+          </h2>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="bg-gray-50 p-6 rounded-lg">
-              <h3 className="font-bold mb-2">How long does shipping take?</h3>
-              <p className="text-sm text-gray-600">Orders are typically shipped within 2-3 business days. Standard delivery takes 5-7 business days.</p>
-            </div>
-
-            <div className="bg-gray-50 p-6 rounded-lg">
-              <h3 className="font-bold mb-2">What is your return policy?</h3>
-              <p className="text-sm text-gray-600">We offer 30-day returns on all items. Products must be unworn and in original packaging.</p>
-            </div>
-
-            <div className="bg-gray-50 p-6 rounded-lg">
-              <h3 className="font-bold mb-2">Do you offer exchanges?</h3>
-              <p className="text-sm text-gray-600">Yes! You can exchange items for a different size or color within 30 days.</p>
-            </div>
-
-            <div className="bg-gray-50 p-6 rounded-lg">
-              <h3 className="font-bold mb-2">What payment methods do you accept?</h3>
-              <p className="text-sm text-gray-600">We accept COD, debit cards, credit cards, and UPI payments. WhatsApp orders are also available.</p>
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-border border border-border">
+            {FAQS.map((f, i) => (
+              <div key={i} className="bg-background p-6 md:p-8 hover:bg-card transition-colors">
+                <h3 className="font-display text-2xl uppercase tracking-tight mb-3">{f.q}</h3>
+                <p className="text-foreground/80 leading-snug">{f.a}</p>
+              </div>
+            ))}
           </div>
         </div>
-      </div>
+      </section>
 
       <Footer />
-    </div>
-  );
+    </main>
+  )
 }
